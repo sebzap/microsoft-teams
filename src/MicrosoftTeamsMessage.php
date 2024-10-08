@@ -103,7 +103,6 @@ class MicrosoftTeamsMessage
      */
     public function content(string $content, array $params = []): self
     {
-//        dd($content);
         $this->payload['attachments'][0]['content']['body'][] = [
             'type' => 'TextBlock',
             'wrap' => true,
