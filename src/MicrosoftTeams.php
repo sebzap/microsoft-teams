@@ -45,10 +45,16 @@ class MicrosoftTeams
             $data['sections'] = array_values($data['sections']);
         }
         try {
+//            dd($data);
             $response = $this->httpClient->post($url, [
                 'json' => $data,
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'debug' => true,
             ]);
         } catch (ClientException $exception) {
+//            dd($exception);
             throw CouldNotSendNotification::microsoftTeamsRespondedWithAnError($exception);
         } catch (Exception $exception) {
             throw CouldNotSendNotification::couldNotCommunicateWithMicrosoftTeams($exception);

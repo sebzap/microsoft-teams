@@ -29,11 +29,19 @@ class MicrosoftTeamsMessage
      */
     public function __construct(string $content = '')
     {
-        $this->payload['@type'] = 'MessageCard';
-        $this->payload['@context'] = 'https://schema.org/extensions';
-        $this->payload['summary'] = 'Incoming Notification';
-        $this->payload['themeColor'] = $this->generateThemeColourCode('primary');
-        $this->content($content);
+        $this->payload['type'] = 'message';
+        $this->payload['attachments'] = [];
+        $this->payload['attachments'][0]['contentType'] = "application/vnd.microsoft.card.adaptive";
+        $this->payload['attachments'][0]['contentUrl'] = null;
+        $this->payload['attachments'][0]['content'] = [];
+        $this->payload['attachments'][0]['content']['$schema'] = 'http://adaptivecards.io/schemas/adaptive-card.json';
+        $this->payload['attachments'][0]['content']['type'] = 'AdaptiveCard';
+        $this->payload['attachments'][0]['content']['version'] = '1.0';
+        $this->payload['attachments'][0]['content']['body'] = [];
+        $this->payload['attachments'][0]['content']['msteams'] = ['width' => 'Full'];
+        if ($content) {
+            $this->content($content);
+        }
     }
 
     /**
@@ -46,14 +54,13 @@ class MicrosoftTeamsMessage
      */
     public function title(string $title, array $params = []): self
     {
-        // if section is defined add it to specified section
-        if (isset($params['section'])) {
-            $sectionId = $params['section'];
-            $this->payload['sections'][$sectionId]['title'] = $title;
-        } else {
-            $this->payload['title'] = $title;
-            $this->payload['summary'] = $title;
-        }
+        $this->payload['attachments'][0]['content']['body'][] = [
+            'type' => 'TextBlock',
+            'wrap' => true,
+            'text' => $title,
+            'weight' => 'bolder',
+            'size' => 'large',
+        ];
 
         return $this;
     }
@@ -96,13 +103,12 @@ class MicrosoftTeamsMessage
      */
     public function content(string $content, array $params = []): self
     {
-        // if section is defined add it to specified section
-        if (isset($params['section'])) {
-            $sectionId = $params['section'];
-            $this->payload['sections'][$sectionId]['text'] = $content;
-        } else {
-            $this->payload['text'] = $content;
-        }
+//        dd($content);
+        $this->payload['attachments'][0]['content']['body'][] = [
+            'type' => 'TextBlock',
+            'wrap' => true,
+            'text' => str_replace("\n", "\n\n", $content),
+        ];
 
         return $this;
     }
